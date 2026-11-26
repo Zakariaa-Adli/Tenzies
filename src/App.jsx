@@ -5,10 +5,23 @@ import Confetti from "react-confetti"
 
 export default function App() {
   const [dice, setDice] = useState(() => generateAllNewDice())
+  const [seconds, setSeconds] = useState(0)
+  const [gameStarted, setGamestarted] = useState(false)
   const buttonRef = useRef(null)
 
   const gameWon = dice.every(die => die.isHeld) &&
     dice.every(die => die.value === dice[0].value)
+
+  useEffect(() => {
+    if (!gameStarted || gameWon) return
+
+    const intervalId = setInterval(() => {
+      setSeconds(oldSeconds => oldSeconds + 1)
+    }, 1000)
+
+    return () => clearInterval(intervalId)
+  }, [gameStarted, gameWon])
+
 
   useEffect(() => {
     if (gameWon) {
@@ -27,18 +40,25 @@ export default function App() {
   }
 
   function rollDice() {
-    if (!gameWon) {
-      setDice(oldDice => oldDice.map(die =>
-        die.isHeld ?
-          die :
-          { ...die, value: Math.ceil(Math.random() * 6) }
-      ))
-    } else {
+    if (gameWon) {
       setDice(generateAllNewDice())
+      setSeconds(0)
+      setGamestarted(false)
+      return
     }
+
+    setGamestarted(true)
+
+    setDice(oldDice => oldDice.map(die =>
+      die.isHeld
+        ? die
+        : { ...die, value: Math.ceil(Math.random() * 6) }
+    ))
   }
 
   function hold(id) {
+    setGamestarted(true)
+
     setDice(oldDice => oldDice.map(die =>
       die.id === id ?
         { ...die, isHeld: !die.isHeld } :
@@ -61,6 +81,7 @@ export default function App() {
       <div aria-live="polite">
         {gameWon && <p>Congratulations! You won! Press "New Game" to start again.</p>}
       </div>
+      <p> Time : {seconds}s </p>
       <h1 className="title">Tenzies</h1>
       <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
       <div className="dice-container">

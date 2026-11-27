@@ -89,3 +89,53 @@ button.roll-dice {
     white-space: nowrap;
     border: 0;
 }
+
+
+/* Dice layout */
+.die {
+    display: grid;
+    grid-template-areas:
+        "top-left top-center top-right"
+        "middle-left center middle-right"
+        "bottom-left bottom-center bottom-right";
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 8px;
+}
+
+/* Individual dots */
+.pip {
+    width: 8px;
+    height: 8px;
+    background-color: #333;
+    border-radius: 50%;
+}
+
+/* Dot positions */
+.top-left {
+    grid-area: top-left;
+}
+
+.top-right {
+    grid-area: top-right;
+}
+
+.middle-left {
+    grid-area: middle-left;
+}
+
+.middle-right {
+    grid-area: middle-right;
+}
+
+.center {
+    grid-area: center;
+}
+
+.bottom-left {
+    grid-area: bottom-left;
+}
+
+.bottom-right {
+    grid-area: bottom-right;
+}

@@ -7,6 +7,11 @@ export default function App() {
   const [dice, setDice] = useState(() => generateAllNewDice())
   const [seconds, setSeconds] = useState(0)
   const [gameStarted, setGamestarted] = useState(false)
+  const [rollCount, setRollCount] = useState(0)
+  const [bestTime, setBestTime] = useState(()=>{
+    const savedTime = localStorage.getItem("tenzies-best-time")
+    return savedTime === null ? null :Number(savedTime)
+  })
   const buttonRef = useRef(null)
 
   const gameWon = dice.every(die => die.isHeld) &&
@@ -25,9 +30,18 @@ export default function App() {
 
   useEffect(() => {
     if (gameWon) {
-      buttonRef.current.focus()
+      buttonRef.current?.focus()
     }
   }, [gameWon])
+
+  useEffect(() => {
+    if(!gameWon) return 
+    
+    if (bestTime === null || seconds < bestTime){
+      setBestTime(seconds)
+      localStorage.setItem("tenzies-best-time",String(seconds))
+    }
+  }, [gameWon, bestTime, seconds])
 
   function generateAllNewDice() {
     return new Array(10)
@@ -42,12 +56,14 @@ export default function App() {
   function rollDice() {
     if (gameWon) {
       setDice(generateAllNewDice())
+      setRollCount(0)
       setSeconds(0)
       setGamestarted(false)
       return
     }
 
     setGamestarted(true)
+    setRollCount(oldCount => oldCount + 1)
 
     setDice(oldDice => oldDice.map(die =>
       die.isHeld
@@ -81,6 +97,8 @@ export default function App() {
       <div aria-live="polite">
         {gameWon && <p>Congratulations! You won! Press "New Game" to start again.</p>}
       </div>
+      <p>Best Time: {bestTime ===null ? "--" : `${bestTime}`}</p>
+      <p>Rolls: {rollCount}</p>
       <p> Time : {seconds}s </p>
       <h1 className="title">Tenzies</h1>
       <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
